@@ -1,4 +1,9 @@
 on: [push]
+# Environment variables available to all jobs and steps in this workflow
+env:
+  REGISTRY_NAME: tabtaoui
+  NAMESPACE: default
+      
 name: Linux_Container_Workflow
 
 jobs:
@@ -21,8 +26,8 @@ jobs:
             username: ${{ secrets.REGISTRY_USERNAME }}
             password: ${{ secrets.REGISTRY_PASSWORD }}
         - run: |
-            docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
-            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/sampleapp:${{ github.sha }}
+            docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/myimage:${{ github.sha }}
+            docker push ${{ env.REGISTRY_NAME }}.azurecr.io/myimage:${{ github.sha }}
         - name: 'Deploy to Azure Container Instances'
           uses: 'azure/aci-deploy@v1'
           with:
