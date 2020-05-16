@@ -1,34 +1,43 @@
 on: [push]
-# Environment variables available to all jobs and steps in this workflow
-env:
-  REGISTRY_NAME: tabtaoui
-  NAMESPACE: default
-      
-name: Linux_Container_Workflow
+name: Create/Deploy_DockerImage_to_ACS
 
 jobs:
-    build-and-deploy:
+    build:
         runs-on: ubuntu-latest
         steps:
-        # checkout the repo
+      
+        # step 1: Checkout GitHub Action
         - name: 'Checkout GitHub Action'
           uses: actions/checkout@master
           
+        # step 2: Login via Azure CLI
         - name: 'Login via Azure CLI'
           uses: azure/login@v1
           with:
             creds: ${{ secrets.AZURE_CREDENTIALS }}
-                  
-        - name: 'Build and push image'
+      
+        # step 3: Docker login        
+        - name: 'Docker login'
           uses: azure/docker-login@v1
           with:
             login-server: ${{ secrets.REGISTRY_LOGIN_SERVER}}
             username: ${{ secrets.REGISTRY_USERNAME }}
             password: ${{ secrets.REGISTRY_PASSWORD }}
+            
+        # step 4: Build Docker Image  
         - name: Build Docker
           run: docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/myimage:${{ github.sha }}
+        
+        # step 5: Push Docker to Azure Registry  
         - name: Push Docker
           run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER}}/myimage:${{ github.sha }}
+          
+    Deploy:
+        name: Deploy
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+        # step 1: Deploy to Azure Container Instances
         - name: 'Deploy to Azure Container Instances'
           uses: 'azure/aci-deploy@v1'
           with:
