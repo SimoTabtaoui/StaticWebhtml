@@ -22,13 +22,13 @@ jobs:
         - name: 'Build and push image'
           uses: azure/docker-login@v1
           with:
-            login-server: tabtaoui.azurecr.io
+            login-server: ${{ secrets.REGISTRY_LOGIN_SERVER}}
             username: ${{ secrets.CR_USERNAME }}
             password: ${{ secrets.CR_PASSWORD }}
         - name: Build Docker
           run: docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/myimage:${{ github.sha }}
         - name: Push Docker
-          run: docker push tabtaoui.azurecr.io/myimage:${{ github.sha }}
+          run: docker push ${{ secrets.REGISTRY_LOGIN_SERVER}}/myimage:${{ github.sha }}
         - name: 'Deploy to Azure Container Instances'
           uses: 'azure/aci-deploy@v1'
           with:
