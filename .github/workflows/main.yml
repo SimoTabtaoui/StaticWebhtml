@@ -9,12 +9,6 @@ jobs:
         # step 1: Checkout GitHub Action
         - name: 'Checkout GitHub Action'
           uses: actions/checkout@master
-          
-        # step 2: Login via Azure CLI
-        - name: 'Login via Azure CLI'
-          uses: azure/login@v1
-          with:
-            creds: ${{ secrets.AZURE_CREDENTIALS }}
       
         # step 3: Docker login        
         - name: 'Docker login'
@@ -37,6 +31,13 @@ jobs:
         needs: build
         runs-on: ubuntu-latest
         steps:
+    
+        # step 2: Login via Azure CLI
+        - name: 'Login via Azure CLI'
+          uses: azure/login@v1
+          with:
+            creds: ${{ secrets.AZURE_CREDENTIALS }}
+ 
         # step 1: Deploy to Azure Container Instances
         - name: 'Deploy to Azure Container Instances'
           uses: 'azure/aci-deploy@v1'
